@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>Где это снято?</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prata&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one centred column, photo in a postcard frame with a postal stamp in the corner */
+:root{
+  --bg:#eef0ec; --paper:#fbfbf8; --ink:#1f2a33; --muted:#5d6a72; --line:#d4d9d3;
+  --accent:#1d5c74; --accent-ink:#ffffff; --stamp:#b5452f;
+  --ok:#2e7d4f; --ok-bg:#e1f1e6; --bad:#b5452f; --bad-bg:#f7e3de; --mix:#c48a1c;
+  --fire:#d9631e; --fire-bg:#fdeee3; --land:#dde3dc; --sea:#f4f6f2; --tile:#c9d3d6; --tile2:#bcc8cc;
+  --shadow:0 1px 2px rgba(31,42,51,.06),0 8px 24px rgba(31,42,51,.08);
+  --f-display:"Prata",Georgia,"Times New Roman",serif;
+  --f-body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141b20; --paper:#1c252b; --ink:#e7ebe8; --muted:#9aa7ad; --line:#2f3b42;
+  --accent:#6fb3cc; --accent-ink:#0f1a20; --stamp:#e07a63;
+  --ok:#6cc58f; --ok-bg:#1d3326; --bad:#e07a63; --bad-bg:#3a221d; --mix:#e0b04f;
+  --fire:#f08a4b; --fire-bg:#3a2619; --land:#2a363d; --sea:#182126; --tile:#33424a; --tile2:#2b3940;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141b20; --paper:#1c252b; --ink:#e7ebe8; --muted:#9aa7ad; --line:#2f3b42;
+  --accent:#6fb3cc; --accent-ink:#0f1a20; --stamp:#e07a63;
+  --ok:#6cc58f; --ok-bg:#1d3326; --bad:#e07a63; --bad-bg:#3a221d; --mix:#e0b04f;
+  --fire:#f08a4b; --fire-bg:#3a2619; --land:#2a363d; --sea:#182126; --tile:#33424a; --tile2:#2b3940;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(2rem,6vw,3rem)}
+h2{font-size:clamp(1.5rem,4.5vw,2rem)}
+p{margin:0}
+.label{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,.opt input:focus-visible+span{outline:3px solid var(--accent);outline-offset:2px}
+.stack{display:flex;flex-direction:column}
+
+/* Start */
+.start{gap:24px}
+.start .lead{color:var(--muted);max-width:56ch}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.opt{position:relative;display:block}
+.opt input{position:absolute;opacity:0}
+.opt span{display:flex;flex-direction:column;gap:4px;height:100%;padding:14px 16px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);transition:border-color .15s,background .15s}
+.opt b{font-weight:700}
+.opt small{color:var(--muted);font-size:.875rem;line-height:1.4}
+.opt input:checked+span{border-color:var(--accent);background:var(--paper);box-shadow:inset 0 0 0 1px var(--accent)}
+.lens{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.lens .opt span{align-items:center;text-align:center;padding:12px 8px}
+.lens .opt b{font-family:var(--f-mono);font-size:1.25rem}
+.spoiler{font-size:.875rem;color:var(--stamp);max-width:56ch}
+.rules{display:flex;flex-wrap:wrap;gap:8px 20px;color:var(--muted);font-size:.9rem}
+.btn{border:0;border-radius:10px;padding:14px 22px;font-weight:700;background:var(--accent);color:var(--accent-ink);transition:transform .1s,filter .15s}
+.btn:hover{filter:brightness(1.07)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+
+/* Game */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.progress{flex:1 1 200px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.track{height:4px;background:var(--line);border-radius:2px;overflow:hidden}
+.track i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.stats{display:flex;gap:16px;align-items:center}
+.stats div{display:flex;flex-direction:column;align-items:flex-end}
+.stats .v{font-size:1.25rem}
+.streak{display:flex!important;flex-direction:row!important;align-items:center!important;gap:4px;padding:6px 10px 6px 8px;border-radius:999px;border:1.5px solid var(--line);color:var(--muted);transition:color .2s,border-color .2s,background .2s}
+.streak svg{width:20px;height:20px;fill:currentColor;transition:transform .2s}
+.streak.lit{color:var(--fire);border-color:var(--fire);background:var(--fire-bg)}
+.streak.hot svg{animation:flicker 1.2s ease-in-out infinite}
+.streak.bump svg{animation:bump .45s ease-out}
+@keyframes flicker{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.12) rotate(3deg)}}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.5)}100%{transform:scale(1)}}
+.restart{border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 14px;font-weight:600;font-size:.875rem;white-space:nowrap;transition:border-color .15s,color .15s,background .15s}
+.restart:hover{border-color:var(--accent);color:var(--accent)}
+.restart.confirm{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+
+.postcard{position:relative;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:10px;box-shadow:var(--shadow)}
+.frame{position:relative;overflow:hidden;border-radius:3px;background:var(--line);height:min(62vh,560px);display:flex;align-items:center;justify-content:center}
+.imgbox{position:relative;max-width:100%;max-height:100%;overflow:hidden}
+.imgbox img{display:block;max-width:100%;max-height:min(62vh,560px);transition:filter .25s linear,transform .25s linear}
+.imgbox img.blurred{transform:scale(1.08)}
+.tiles{position:absolute;inset:0;display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(6,1fr)}
+.tiles i{background:var(--tile);transition:opacity .45s ease;border:1px solid var(--tile2)}
+.tiles i:nth-child(odd){background:var(--tile2)}
+.tiles i.open{opacity:0}
+.stamp{position:absolute;top:18px;right:18px;width:74px;height:74px;border:2px dashed var(--stamp);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;color:var(--stamp);background:color-mix(in srgb,var(--paper) 82%,transparent);
+  font-family:var(--f-mono);font-size:.7rem;line-height:1.15;text-align:center;transform:rotate(-12deg);pointer-events:none;z-index:2}
+.stamp b{font-size:1.15rem}
+.revealbar{position:absolute;left:10px;right:10px;bottom:10px;height:4px;background:color-mix(in srgb,var(--paper) 50%,transparent);z-index:2}
+.revealbar i{display:block;height:100%;background:var(--accent);width:100%}
+
+.question{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.hint{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 14px;font-weight:600;font-size:.9rem}
+.hint:not([disabled]):hover{border-color:var(--accent)}
+.hint[disabled]{opacity:.45;cursor:not-allowed}
+.hint .dots{display:inline-flex;gap:4px}
+.hint .dots i{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.hint .dots i.used{background:var(--line)}
+
+.answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.answers{grid-template-columns:1fr}}
+.ans{text-align:left;padding:14px 16px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper);font-weight:600;min-height:56px;display:flex;align-items:center;gap:12px;transition:border-color .15s,background .15s,opacity .2s}
+.ans .k{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);flex:none;width:1.2em}
+.ans:not([disabled]):hover{border-color:var(--accent)}
+.ans[disabled]{cursor:default}
+.ans.gone{opacity:.25;text-decoration:line-through}
+.ans.ok{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+.ans.bad{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+.feedback{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;min-height:52px}
+.feedback p{font-weight:600}
+.feedback .ok{color:var(--ok)} .feedback .bad{color:var(--bad)}
+
+/* Results */
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.summary .card{display:flex;flex-direction:column;gap:4px;padding:16px}
+.summary .big{font-family:var(--f-display);font-size:2.2rem;line-height:1}
+.verdict{color:var(--muted)}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.filter{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 12px;font-size:.875rem;font-weight:600}
+.chip[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+
+.mapcard{padding:12px;display:flex;flex-direction:column;gap:12px}
+.mapbox{position:relative;background:var(--sea);border-radius:8px;overflow:hidden}
+.mapbox svg{display:block;width:100%;height:auto}
+.mapbox .land{fill:var(--land);stroke:var(--line);stroke-width:.6}
+.mapbox .grat{fill:none;stroke:var(--line);stroke-width:.5;stroke-dasharray:2 3}
+.mapbox .dot{stroke:var(--paper);stroke-width:2;cursor:pointer;transition:r .15s}
+.mapbox .dot.sel{stroke:var(--ink)}
+.mapbox .tip{font-family:var(--f-body);font-size:13px;font-weight:700;fill:var(--ink);paint-order:stroke;stroke:var(--sea);stroke-width:4px;stroke-linejoin:round;pointer-events:none}
+.maphead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;padding:4px 4px 0}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.places{display:flex;flex-wrap:wrap;gap:6px}
+.place{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--bg);border-radius:999px;padding:4px 10px;font-size:.85rem;font-weight:600}
+.place i{width:8px;height:8px;border-radius:50%}
+.place .mono{color:var(--muted);font-size:.75rem}
+.place[aria-pressed="true"]{border-color:var(--ink)}
+.mapnote{font-size:.8rem;color:var(--muted)}
+
+.review{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.review li{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--ok);border-radius:10px;padding:8px}
+.review li.bad{border-left-color:var(--bad)}
+.review img{width:72px;height:72px;object-fit:cover;border-radius:6px;background:var(--line)}
+.review .txt{display:flex;flex-direction:column;gap:2px;min-width:0;font-size:.9rem}
+.review .txt b{font-size:1rem}
+.review .txt span{color:var(--muted)}
+.review .tag{font-size:.75rem;font-weight:700;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.review .pts{font-family:var(--f-mono);font-size:.85rem;color:var(--muted);text-align:right}
+.right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+
+.lightbox{position:fixed;inset:0;z-index:50;background:color-mix(in srgb,#0b1014 72%,transparent);display:flex;align-items:center;justify-content:center;
+  padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.lbpanel{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;width:min(900px,100%);max-height:100%;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
+.lbhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.lbimg{position:relative;display:flex;align-items:center;justify-content:center;background:var(--line);border-radius:6px;overflow:hidden;min-height:0;flex:1}
+.lbimg img{display:block;max-width:100%;max-height:calc(100vh - 220px);object-fit:contain}
+.lbbtn{border:1.5px solid var(--line);background:var(--paper);border-radius:999px;width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;font-size:1.1rem;flex:none}
+.lbbtn:hover{border-color:var(--accent);color:var(--accent)}
+.lbnav{position:absolute;top:50%;transform:translateY(-50%);font-size:1.6rem;line-height:1;background:color-mix(in srgb,var(--paper) 85%,transparent)}
+#lbPrev{left:10px} #lbNext{right:10px}
+#lbAns{font-weight:600}
+#lbAns.ok{color:var(--ok)} #lbAns.bad{color:var(--bad)}
+.mapbox .dot:hover{r:9}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+  <section class="start stack" id="screenStart">
+    <div class="stack" style="gap:10px">
+      <span class="label">Фотоквиз · <span class="mono" id="totalCount">50</span> снимков</span>
+      <h1>Где это снято?</h1>
+      <p class="lead">Смотрите на фотографию и выбирайте место из четырёх вариантов. Порядок снимков и ответов при каждой игре новый.</p>
+    </div>
+    <div class="card stack" style="gap:16px">
+      <span class="label">Режим игры</span>
+      <div class="modes">
+        <label class="opt"><input type="radio" name="mode" id="modeNormal" value="normal" checked>
+          <span><b>Обычный</b><small>Фото видно сразу. 1 очко за правильный ответ.</small></span></label>
+        <label class="opt"><input type="radio" name="mode" id="modeReveal" value="reveal">
+          <span><b>Проявление</b><small>Фото размыто и проясняется 15 секунд.</small></span></label>
+        <label class="opt"><input type="radio" name="mode" id="modeFragment" value="fragment">
+          <span><b>Фрагмент</b><small>Сначала видно 20% фото, остальное открывается кусочками за 15 секунд.</small></span></label>
+      </div>
+      <p class="rules" id="modeNote">В режимах «Проявление» и «Фрагмент» чем раньше ответ, тем больше очков: от 100 до 20.</p>
+
+      <span class="label">Сколько фото</span>
+      <div class="lens">
+        <label class="opt"><input type="radio" name="len" id="len10" value="10" checked><span><b>10</b><small>Быстрая</small></span></label>
+        <label class="opt"><input type="radio" name="len" id="len20" value="20"><span><b>20</b><small>Средняя</small></span></label>
+        <label class="opt"><input type="radio" name="len" id="lenAll" value="all"><span><b class="mono" id="allCount">50</b><small>Все фото</small></span></label>
+      </div>
+      <div class="rules"><span>Подсказка 50/50: 2 раза за игру</span><span>Бонус за серию: 3, 5 и 10 верных подряд</span><span>В конце карта и разбор ответов</span></div>
+      <div class="actions"><button class="btn" id="startBtn">Начать игру</button><button class="btn ghost" id="atlasBtn">Карта всех фото</button></div>
+      <p class="spoiler">Осторожно, спойлер! На карте видны все ответы, так что после неё играть будет неинтересно.</p>
+    </div>
+  </section>
+
+  <section id="screenGame" class="stack" hidden style="gap:16px">
+    <div class="bar">
+      <div class="progress">
+        <span class="label">Снимок <span class="mono" id="qNum">1</span> из <span class="mono" id="qTotal">10</span></span>
+        <div class="track"><i id="trackFill"></i></div>
+      </div>
+      <div class="stats">
+        <div><span class="label">Верно</span><span class="v mono" id="correctNow">0</span></div>
+        <div><span class="label">Очки</span><span class="v mono" id="ptsNow">0</span></div>
+        <div class="streak" id="streak" title="Серия верных ответов подряд">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c.6 3.2-1 5-2.6 6.8C7.8 10.6 6 12.6 6 15.5A6 6 0 0 0 18 15.5c0-2.6-1.3-4.6-2.7-6.1.1 1.6-.4 2.9-1.6 3.6.4-3.8-.6-8-1.7-11Z"/></svg>
+          <span class="v mono" id="streakNow">0</span>
+        </div>
+        <button class="restart" id="restartBtn" title="Вернуться на стартовый экран">↺ Заново</button>
+      </div>
+    </div>
+
+    <div class="postcard">
+      <div class="frame"><div class="imgbox"><img id="photo" alt="Фотография, место которой нужно угадать"><div class="tiles" id="tiles" hidden></div></div></div>
+      <div class="stamp"><span>№</span><b class="mono" id="stampNum">1</b></div>
+      <div class="revealbar" id="revealBar" hidden><i id="revealFill"></i></div>
+    </div>
+
+    <div class="question">
+      <h2>Где сделан этот снимок?</h2>
+      <button class="hint" id="hintBtn"><span>50/50</span><span class="dots"><i></i><i></i></span></button>
+    </div>
+    <div class="answers" id="answers"></div>
+    <div class="feedback"><p id="fbText"></p><button class="btn" id="nextBtn" hidden>Дальше</button></div>
+  </section>
+
+  <section id="screenResult" class="stack" hidden style="gap:20px">
+    <div class="stack" style="gap:8px">
+      <span class="label" id="resMode">Итоги</span>
+      <h1 id="resTitle">Итоги</h1>
+      <p class="verdict" id="resVerdict"></p>
+    </div>
+    <div class="summary">
+      <div class="card"><span class="label">Правильно</span><span class="big mono" id="resCorrect">0</span></div>
+      <div class="card"><span class="label">Точность</span><span class="big mono" id="resPct">0%</span></div>
+      <div class="card"><span class="label">Очки</span><span class="big mono" id="resPts">0</span></div>
+      <div class="card"><span class="label">Лучшая серия</span><span class="big mono" id="resStreak">0</span></div>
+      <div class="card"><span class="label">Подсказок</span><span class="big mono" id="resHints">0</span></div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="againBtn">Сыграть ещё раз</button>
+      <button class="btn ghost" id="menuBtn">Сменить режим</button>
+    </div>
+
+    <div class="card mapcard">
+      <div class="maphead">
+        <h2>Карта путешествий</h2>
+        <span class="label" id="mapStats"></span>
+      </div>
+      <div class="mapbox" id="mapbox"></div>
+      <div class="legend">
+        <span><i style="background:var(--ok)"></i>Угадано</span>
+        <span><i style="background:var(--mix)"></i>Частично</span>
+        <span><i style="background:var(--bad)"></i>Не угадано</span>
+      </div>
+      <div class="places" id="places"></div>
+      <p class="mapnote" id="mapNote"></p>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <h2>Разбор ответов</h2>
+      <div class="filter">
+        <button class="chip" data-f="all" aria-pressed="true">Все</button>
+        <button class="chip" data-f="bad" aria-pressed="false">Ошибки</button>
+        <button class="chip" data-f="ok" aria-pressed="false">Верные</button>
+      </div>
+    </div>
+    <ul class="review" id="review"></ul>
+  </section>
+  <section id="screenAtlas" class="stack" hidden style="gap:20px">
+    <div class="stack" style="gap:10px">
+      <button class="restart" id="atlasBack" style="align-self:flex-start">← В меню</button>
+      <h1>Карта всех фото</h1>
+      <p class="lead" style="color:var(--muted);max-width:56ch">Все места, где сделаны снимки квиза. Нажмите на точку или на место в списке, чтобы посмотреть фото.</p>
+    </div>
+    <div class="card mapcard">
+      <div class="maphead">
+        <span class="label" id="atlasStats"></span>
+      </div>
+      <div class="mapbox" id="atlasBox"></div>
+      <div class="places" id="atlasPlaces"></div>
+      <p class="mapnote" id="atlasNote"></p>
+    </div>
+  </section>
+</div>
+
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-labelledby="lbTitle">
+  <div class="lbpanel">
+    <div class="lbhead">
+      <div class="stack" style="gap:2px;min-width:0">
+        <h2 id="lbTitle">Место</h2>
+        <span class="label mono" id="lbCount"></span>
+      </div>
+      <button class="lbbtn" id="lbClose" aria-label="Закрыть">✕</button>
+    </div>
+    <div class="lbimg">
+      <img id="lbImg" alt="Фото из этого места">
+      <button class="lbbtn lbnav" id="lbPrev" aria-label="Предыдущее фото">‹</button>
+      <button class="lbbtn lbnav" id="lbNext" aria-label="Следующее фото">›</button>
+    </div>
+    <p id="lbAns"></p>
+  </div>
+</div>
+
+<script>
+// answer = правильный ответ; wrong = неправильные варианты; allCorrect = любой вариант засчитывается
+const QUESTIONS = [
+  {img:"p01.jpg", answer:"Аватарка в телеграмме", wrong:["Веткино","Япония","Мальдивы"]},
+  {img:"p03.jpg", answer:"Алтай", wrong:["Хакасия","Кыргызстан","Байкал"]},
+  {img:"p02.jpg", answer:"Алтай", wrong:["Якутия","Казань","Сахалин"]},
+  {img:"p04.jpg", answer:"Байкал", wrong:["Марокко","Якутия","Алтай"]},
+  {img:"p06.jpg", answer:"Байкал", wrong:["Якутия","Сахалин","Хакасия"]},
+  {img:"p09.jpg", answer:"Брянск", wrong:["Калининград","Смоленск","Зарайск"]},
+  {img:"p05.jpg", answer:"Геленджик", wrong:["Сочи","Крым","Черногория"]},
+  {img:"p07.jpg", answer:"Дача", wrong:["Карелия","Алтай","Калязин"]},
+  {img:"p10.jpg", answer:"Египет", wrong:["Турция","Тунис","Черногория"]},
+  {img:"p08.jpg", answer:"Египет", wrong:["Турция","Черногория","Тунис"]},
+  {img:"p11.jpg", answer:"Египет", wrong:["Турция","Черногория","Тунис"]},
+  {img:"p14.jpg", answer:"Зарайск", wrong:["Брянск","Калининград","Смоленск"]},
+  {img:"p13.jpg", answer:"Казань", wrong:["Якутия","Байкал","Москва"]},
+  {img:"p12.jpg", answer:"Калининград", wrong:["Крым","Тунис","Турция"]},
+  {img:"p19.jpg", answer:"Кыргызстан", wrong:["Сахалин","Якутия","Хакасия"]},
+  {img:"p21.jpg", answer:"Кыргызстан", wrong:["Зоопарк","Приют для животных","Белка, но не в Кыргызстане"]},
+  {img:"p20.jpg", answer:"Марокко", wrong:["Турция","Черногория","Тунис"]},
+  {img:"p22.jpg", answer:"Марокко", wrong:["Египет","Тунис","Турция"]},
+  {img:"p23.jpg", answer:"Марокко", wrong:["Тунис","Египет","Турция"]},
+  {img:"p25.jpg", answer:"Москва", wrong:["Сочи","Китай","Новая Зеландия"]},
+  {img:"p24.jpg", answer:"Питер", wrong:["Кострома","Казань","Брянск"]},
+  {img:"p15.jpg", answer:"Калязин", wrong:["Алтай","Байкал","Сочи"]},
+  {img:"p17.jpg", answer:"Карелия", wrong:["Алтай","Шашлыки в ceedclub","Монголия"]},
+  {img:"p16.jpg", answer:"Кострома", wrong:["Калининград","Крым","Брянск"]},
+  {img:"p18.jpg", answer:"Крым", wrong:["Турция","Тунис","Греция"]},
+  {img:"p26.jpg", answer:"Сахалин", wrong:["Хакасия","Якутия","Геленджик"]},
+  {img:"p27.jpg", answer:"Сахалин", wrong:["Курганская","Кантемировская","Австралия"]},
+  {img:"p28.jpg", answer:"Сахалин", wrong:["Якутия","Хакасия","Кыргызстан"]},
+  {img:"p36.jpg", answer:"Свадьба", wrong:["День рождения бабушки","Выпускной 9 класс","Юбилей"]},
+  {img:"p29.jpg", answer:"Сочи", wrong:["Горы","Катание на лыжах","Отпуск"], allCorrect:true},
+  {img:"p30.jpg", answer:"Тунис", wrong:["Турция","Греция","Египет"]},
+  {img:"p31.jpg", answer:"Турция", wrong:["Тунис","Греция","Египет"]},
+  {img:"p33.jpg", answer:"Турция", wrong:["Тунис","Греция","Египет"]},
+  {img:"p32.jpg", answer:"Хакасия", wrong:["Якутия","Сахалин","Кыргызстан"]},
+  {img:"p34.jpg", answer:"Черногория", wrong:["Турция","Тунис","Египет"]},
+  {img:"p35.jpg", answer:"Черногория", wrong:["Геленджик","Марокко","Крым"]},
+  {img:"p37.jpg", answer:"Якутия", wrong:["Алтай","Сахалин","Кыргызстан"]},
+  {img:"p38.jpg", answer:"Якутия", wrong:["Байкал","Сахалин","Казань"]},
+  {img:"p39.jpg", answer:"Тунис", wrong:["Египет","Марокко","Турция"]},
+  {img:"p40.jpg", answer:"Питер", wrong:["Хакасия","Калязин","Казань"]},
+  {img:"p41.jpg", answer:"Нижний Новгород", wrong:["Брянск","Питер","Москва"]},
+  {img:"p42.jpg", answer:"Нижний Новгород", wrong:["Брянск","Питер","Казань"]},
+  {img:"p43.jpg", answer:"Хакасия", wrong:["Алтай","Калязин","Якутия"]},
+  {img:"p44.jpg", answer:"Нижний Новгород", wrong:["Казань","Кострома","Калязин"]},
+  {img:"p45.jpg", answer:"Крым", wrong:["Якутия","Сахалин","Алтай"]},
+  {img:"p46.jpg", answer:"Крым", wrong:["Якутия","Сахалин","Черногория"]},
+  {img:"p47.jpg", answer:"Тульская область", wrong:["Кострома","Крым","Дача"]},
+  {img:"p48.jpg", answer:"Тульская область", wrong:["Кострома","Крым","Дача"]},
+  {img:"p49.jpg", answer:"Кострома", wrong:["Брянск","Зарайск","Калязин"]},
+  {img:"p50.jpg", answer:"Брянск", wrong:["Париж","Питер","Кострома"]},
+];
+
+// Координаты мест для карты: [долгота, широта, страна]. Места без точки на карте здесь не указаны.
+const PLACES = {
+  "Алтай":[86.0,51.0,"Россия"], "Байкал":[107.4,53.2,"Россия"], "Брянск":[34.36,53.24,"Россия"],
+  "Геленджик":[38.08,44.56,"Россия"], "Египет":[34.3,27.9,"Египет"], "Зарайск":[38.88,54.76,"Россия"],
+  "Казань":[49.12,55.79,"Россия"], "Калининград":[20.51,54.71,"Россия"], "Калязин":[37.85,57.24,"Россия"],
+  "Карелия":[33.5,62.0,"Россия"], "Кострома":[40.93,57.77,"Россия"], "Крым":[34.1,44.75,"Крым"],
+  "Кыргызстан":[77.2,42.45,"Кыргызстан"], "Марокко":[-7.99,31.63,"Марокко"], "Москва":[37.62,55.75,"Россия"],
+  "Нижний Новгород":[44.0,56.33,"Россия"], "Питер":[30.31,59.94,"Россия"], "Сахалин":[142.73,46.96,"Россия"],
+  "Сочи":[39.73,43.6,"Россия"], "Тунис":[10.0,33.8,"Тунис"], "Турция":[30.7,36.9,"Турция"],
+  "Тульская область":[37.62,54.19,"Россия"], "Хакасия":[91.4,53.7,"Россия"], "Черногория":[18.77,42.4,"Черногория"],
+  "Якутия":[129.73,62.03,"Россия"],
+};
+
+const IMG = f => "img/" + f;
+const HINTS_MAX = 2, REVEAL_MS = 15000, MAX_PTS = 100, MIN_PTS = 20, BLUR_MAX = 28;
+const GRID = 36, START_OPEN = 7; // 6×6 кусочков, сначала открыто 7 (≈20%)
+const MODE_NAMES = {normal:"обычный режим", reveal:"режим проявления", fragment:"режим «Фрагмент»"};
+
+const $ = id => document.getElementById(id);
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const timed = () => S.mode !== "normal";
+
+// Библиотеки для карты подгружаются в фоне и нужны только на итоговом экране
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.async=true;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
+const mapLibs = loadScript("https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js")
+  .then(()=>Promise.allSettled([
+    loadScript("https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"),
+    loadScript("https://cdnjs.cloudflare.com/ajax/libs/datamaps/0.5.9/datamaps.world.min.js"),
+  ])).catch(()=>{});
+
+let S = null, raf = 0;
+
+function show(id){for(const s of ["screenStart","screenGame","screenResult","screenAtlas"]) $(s).hidden = s!==id; window.scrollTo(0,0)}
+
+function newGame(mode, len){
+  const all = shuffle(QUESTIONS);
+  const n = len === "all" ? all.length : Math.min(+len, all.length);
+  S = {mode, len, i:0, hintsLeft:HINTS_MAX, correct:0, pts:0, streak:0, best:0, log:[],
+       qs: all.slice(0,n).map(q => ({...q, options: shuffle([q.answer, ...q.wrong])}))};
+  $("qTotal").textContent = S.qs.length;
+  show("screenGame"); render();
+}
+
+function render(){
+  const q = S.qs[S.i];
+  S.cur = {answered:false, hinted:false, start:0, order:shuffle([...Array(GRID).keys()]), opened:0};
+  $("qNum").textContent = S.i+1; $("stampNum").textContent = S.i+1;
+  $("trackFill").style.width = (S.i/S.qs.length*100)+"%";
+  $("correctNow").textContent = S.correct; $("ptsNow").textContent = S.pts;
+  showStreak(false);
+  $("fbText").textContent = ""; $("fbText").className = ""; $("nextBtn").hidden = true;
+  updateHint();
+
+  const box = $("answers"); box.innerHTML = "";
+  q.options.forEach((o,k) => {
+    const b = document.createElement("button");
+    b.className = "ans"; b.id = "ans"+k; b.dataset.v = o;
+    b.innerHTML = `<span class="k">${"АБВГ"[k]}</span><span></span>`;
+    b.lastChild.textContent = o;
+    b.onclick = () => choose(o);
+    box.appendChild(b);
+  });
+
+  cancelAnimationFrame(raf);
+  const img = $("photo"), tiles = $("tiles");
+  const blur = S.mode === "reveal", frag = S.mode === "fragment";
+  $("revealBar").hidden = !timed();
+  $("revealFill").style.width = "100%";
+  img.classList.toggle("blurred", blur);
+  img.style.transition = "none";
+  img.style.filter = blur ? `blur(${BLUR_MAX}px)` : "none";
+  tiles.hidden = !frag;
+  if (frag) { tiles.innerHTML = "<i></i>".repeat(GRID); openTiles(START_OPEN); }
+
+  const begin = () => { if (timed() && !S.cur.answered && !S.cur.start){ S.cur.start = performance.now(); tick(); } };
+  img.onload = begin;
+  img.src = IMG(q.img);
+  if (img.complete && img.naturalWidth) begin();
+  const nxt = S.qs[S.i+1]; if (nxt) (new Image()).src = IMG(nxt.img);
+}
+
+function openTiles(n){
+  const cells = $("tiles").children;
+  while (S.cur.opened < Math.min(n, GRID)) { cells[S.cur.order[S.cur.opened]].classList.add("open"); S.cur.opened++; }
+}
+function revealFrac(){ return S.cur.start ? Math.min(1, (performance.now()-S.cur.start)/REVEAL_MS) : 0; }
+function tick(){
+  if (S.cur.answered) return;
+  const f = revealFrac();
+  if (S.mode === "reveal") $("photo").style.filter = `blur(${(BLUR_MAX*Math.pow(1-f,1.6)).toFixed(2)}px)`;
+  if (S.mode === "fragment") openTiles(START_OPEN + Math.floor(f*(GRID-START_OPEN)));
+  $("revealFill").style.width = ((1-f)*100)+"%";
+  if (f < 1) raf = requestAnimationFrame(tick); else $("photo").classList.remove("blurred");
+}
+
+// Огонёк серии: загорается с 3 верных подряд. Бонусы за 3, 5, 10 и далее каждые 5.
+function streakBonus(n){
+  const t = timed();
+  if (n === 3) return t ? 30 : 1;
+  if (n === 5) return t ? 50 : 2;
+  if (n >= 10 && n % 5 === 0) return t ? 100 : 3;
+  return 0;
+}
+function showStreak(bump){
+  const el = $("streak");
+  $("streakNow").textContent = S.streak;
+  el.classList.toggle("lit", S.streak >= 3);
+  el.classList.toggle("hot", S.streak >= 5);
+  el.classList.remove("bump");
+  if (bump && S.streak > 0) { void el.offsetWidth; el.classList.add("bump"); setTimeout(() => el.classList.remove("bump"), 500); }
+  el.title = `Серия: ${S.streak} верных подряд` + (S.best ? `, лучшая ${S.best}` : "");
+}
+
+function updateHint(){
+  $("hintBtn").querySelectorAll(".dots i").forEach((d,k) => d.classList.toggle("used", k >= S.hintsLeft));
+  $("hintBtn").disabled = S.hintsLeft === 0 || S.cur.answered || S.cur.hinted;
+  $("hintBtn").setAttribute("aria-label", `Подсказка 50/50, осталось ${S.hintsLeft}`);
+}
+
+$("hintBtn").onclick = () => {
+  if (S.hintsLeft === 0 || S.cur.answered || S.cur.hinted) return;
+  const q = S.qs[S.i];
+  const pool = q.allCorrect ? q.options.slice() : q.wrong.slice();
+  shuffle(pool).slice(0,2).forEach(v => {
+    const b = [...document.querySelectorAll(".ans")].find(x => x.dataset.v === v);
+    b.disabled = true; b.classList.add("gone");
+  });
+  S.hintsLeft--; S.cur.hinted = true; updateHint();
+};
+
+function choose(v){
+  if (S.cur.answered) return;
+  const f = revealFrac();
+  S.cur.answered = true;
+  cancelAnimationFrame(raf);
+  const q = S.qs[S.i];
+  const ok = q.allCorrect || v === q.answer;
+  let pts = 0;
+  if (ok) pts = timed() ? Math.round(MAX_PTS - (MAX_PTS-MIN_PTS)*f) : 1;
+  let bonus = 0;
+  if (ok) { S.correct++; S.streak++; S.best = Math.max(S.best, S.streak); bonus = streakBonus(S.streak); }
+  else S.streak = 0;
+  S.pts += pts + bonus;
+  S.log.push({img:q.img, answer:q.answer, picked:v, ok, pts:pts+bonus, hinted:S.cur.hinted, allCorrect:!!q.allCorrect});
+
+  document.querySelectorAll(".ans").forEach(b => {
+    b.disabled = true;
+    if (q.allCorrect ? b.dataset.v === v : b.dataset.v === q.answer) b.classList.add("ok");
+    else if (b.dataset.v === v) b.classList.add("bad");
+  });
+  const img = $("photo");
+  img.style.transition = ""; img.style.filter = "none"; img.classList.remove("blurred");
+  if (S.mode === "fragment") openTiles(GRID);
+  $("revealFill").style.width = "0";
+
+  const fb = $("fbText"), plus = timed() ? ` +${pts} очков` : "";
+  if (q.allCorrect){ fb.className = "ok"; fb.textContent = "Верно! Тут подходит любой ответ: это Сочи." + plus; }
+  else if (ok){ fb.className = "ok"; fb.textContent = "Верно!" + plus; }
+  else { fb.className = "bad"; fb.textContent = "Мимо. Правильный ответ: " + q.answer; }
+  if (bonus) fb.textContent += ` Серия ${S.streak} подряд: +${bonus} бонус!`;
+  $("correctNow").textContent = S.correct; $("ptsNow").textContent = S.pts;
+  showStreak(ok);
+  $("nextBtn").textContent = S.i === S.qs.length-1 ? "К итогам" : "Дальше";
+  $("nextBtn").hidden = false; $("nextBtn").focus({preventScroll:true});
+  updateHint();
+}
+
+$("nextBtn").onclick = () => { S.i++; if (S.i >= S.qs.length) results(); else render(); };
+
+function results(){
+  const n = S.qs.length, pct = Math.round(S.correct/n*100);
+  $("resMode").textContent = `Итоги · ${MODE_NAMES[S.mode]} · ${n} фото`;
+  $("resTitle").textContent = `${S.correct} из ${n}`;
+  $("resVerdict").textContent = pct >= 90 ? "Вы были почти везде, где снимались эти фото." :
+    pct >= 70 ? "Отличный результат, большинство мест узнано." :
+    pct >= 40 ? "Неплохо. Разбор ниже покажет, где запутались." : "Есть что вспомнить. Посмотрите разбор и попробуйте ещё раз.";
+  $("resCorrect").textContent = S.correct;
+  $("resPct").textContent = pct + "%";
+  $("resPts").textContent = S.pts;
+  $("resStreak").textContent = S.best;
+  $("resHints").textContent = (HINTS_MAX - S.hintsLeft) + "/" + HINTS_MAX;
+
+  const ul = $("review"); ul.innerHTML = "";
+  S.log.forEach((r,k) => {
+    const li = document.createElement("li");
+    li.className = r.ok ? "ok" : "bad"; li.dataset.ok = r.ok ? "1" : "0";
+    li.innerHTML = `<img loading="lazy" alt=""><div class="txt"><b></b><span></span></div><div class="right"></div>`;
+    li.querySelector("img").src = IMG(r.img);
+    li.querySelector("b").textContent = `${k+1}. ${r.allCorrect ? "Сочи (верен любой ответ)" : r.answer}`;
+    li.querySelector("span").textContent = r.ok ? `Ваш ответ: ${r.picked}` : `Ваш ответ: ${r.picked} · неверно`;
+    const right = li.querySelector(".right");
+    if (timed()) { const p = document.createElement("span"); p.className="pts"; p.textContent = "+"+r.pts; right.appendChild(p); }
+    if (r.hinted) { const t = document.createElement("span"); t.className="tag"; t.textContent = "50/50"; right.appendChild(t); }
+    ul.appendChild(li);
+  });
+  setFilter("all");
+  $("trackFill").style.width = "100%";
+  show("screenResult");
+  drawMap("result", {box:"mapbox", list:"places", stats:"mapStats", note:"mapNote"}, resultPlaces());
+}
+
+/* ---------- Карты ---------- */
+// Одна функция рисует и карту итогов игры, и общую карту всех фото из меню
+const W = 760;
+const MAPS = {};
+
+function groupShots(entries){
+  const agg = {};
+  entries.forEach(r => {
+    const name = r.allCorrect ? "Сочи" : r.answer;
+    agg[name] = agg[name] || {name, ok:0, total:0, shots:[]};
+    agg[name].total++; if (r.ok) agg[name].ok++;
+    agg[name].shots.push(r);
+  });
+  return Object.values(agg).map(p => {
+    const c = PLACES[p.name];
+    return {...p, onMap:!!c, lon:c?c[0]:0, lat:c?c[1]:0, country:c?c[2]:""};
+  });
+}
+
+function resultPlaces(){
+  return groupShots(S.log).map(p => ({...p, kind:"result",
+    color: p.ok === p.total ? "var(--ok)" : p.ok === 0 ? "var(--bad)" : "var(--mix)",
+    badge: `${p.ok}/${p.total}`, tip: `${p.name} · ${p.ok}/${p.total}`}));
+}
+function allPlaces(){
+  return groupShots(QUESTIONS.map(q => ({img:q.img, answer:q.answer, allCorrect:!!q.allCorrect}))).map(p => ({...p, kind:"all",
+    color:"var(--accent)", badge:`${p.total} фото`, tip:`${p.name} · ${p.total} фото`}));
+}
+
+async function drawMap(key, ids, places){
+  const box = $(ids.box), list = $(ids.list), note = $(ids.note);
+  const M = MAPS[key] = {places, box, list, proj:null};
+  const onMap = places.filter(p => p.onMap), offMap = places.filter(p => !p.onMap);
+  const abroad = new Set(onMap.filter(p => p.country !== "Россия" && p.country !== "Крым").map(p => p.country));
+  $(ids.stats).textContent = `${onMap.length} ${plural(onMap.length,"место","места","мест")} · ${abroad.size} ${plural(abroad.size,"страна","страны","стран")} за границей`;
+  note.textContent = offMap.length ? "Без точки на карте: " + offMap.map(p => p.name).join(", ") + ". Их фото открываются из списка." : "";
+
+  // список мест под картой
+  list.innerHTML = "";
+  places.slice().sort((a,b)=>a.name.localeCompare(b.name,"ru")).forEach(p => {
+    const b = document.createElement("button");
+    b.className = "place"; b.dataset.name = p.name; b.setAttribute("aria-pressed","false");
+    b.innerHTML = `<i style="background:${p.onMap ? p.color : "transparent"};border:1.5px solid ${p.color}"></i><span></span><span class="mono"></span>`;
+    b.children[1].textContent = p.name; b.children[2].textContent = p.badge;
+    b.onclick = () => { selectPlace(key, p.name); openPhotos(p); };
+    list.appendChild(b);
+  });
+
+  await mapLibs;
+  if (!window.d3) { box.hidden = true; return; }
+  box.hidden = false;
+  // Обычная прямоугольная карта (проекция Меркатора): от Марокко до Сахалина, от Египта до севера России
+  const LON = [-18, 155], LAT = [20, 78];
+  const corners = {type:"MultiPoint", coordinates:[[LON[0],LAT[0]],[LON[1],LAT[0]],[LON[0],LAT[1]],[LON[1],LAT[1]]]};
+  const proj = d3.geoMercator().fitWidth(W, corners);
+  const H = Math.round(proj([LON[0], LAT[0]])[1]);
+  proj.clipExtent([[0,0],[W,H]]);
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Карта мест с фотографиями"></svg>`;
+  const svg = d3.select(box).select("svg");
+  const path = d3.geoPath(proj);
+  svg.append("path").attr("class","grat").attr("d", path(d3.geoGraticule().step([20,10])()));
+
+  let land = null;
+  try {
+    const topo = window.Datamap && Datamap.prototype.worldTopo;
+    if (topo && window.topojson) land = topojson.merge(topo, topo.objects.world.geometries);
+  } catch(e) {}
+  if (land) svg.append("path").attr("class","land").attr("d", path(land));
+  else note.textContent = (note.textContent + " Контуры материков не загрузились, точки стоят по координатам.").trim();
+
+  const g = svg.append("g");
+  onMap.forEach(p => {
+    const [x,y] = proj([p.lon,p.lat]);
+    p.x = x; p.y = y;
+    g.append("circle").attr("class","dot").attr("data-name",p.name).attr("cx",x).attr("cy",y).attr("r",7)
+      .style("fill",p.color).on("click",()=>{ selectPlace(key, p.name); openPhotos(p); })
+      .append("title").text(p.tip);
+  });
+  svg.append("text").attr("class","tip");
+}
+
+function selectPlace(key, name){
+  const M = MAPS[key]; if (!M) return;
+  const p = M.places.find(x => x.name === name);
+  M.list.querySelectorAll(".place").forEach(b => b.setAttribute("aria-pressed", b.dataset.name === name));
+  M.box.querySelectorAll(".dot").forEach(c => { const on = c.getAttribute("data-name") === name; c.classList.toggle("sel", on); c.setAttribute("r", on ? 10 : 7); });
+  const tip = M.box.querySelector(".tip");
+  if (!tip) return;
+  if (!p || !p.onMap) { tip.textContent = ""; return; }
+  tip.textContent = p.tip;
+  const right = p.x > W - 180;
+  tip.setAttribute("x", right ? p.x - 14 : p.x + 14);
+  tip.setAttribute("y", p.y + 5);
+  tip.setAttribute("text-anchor", right ? "end" : "start");
+}
+
+/* ---------- Просмотр фото места ---------- */
+let LB = {p:null, i:0};
+function openPhotos(p){
+  LB = {p, i:0};
+  showShot();
+  $("lightbox").hidden = false;
+  $("lbClose").focus({preventScroll:true});
+}
+function showShot(){
+  const shots = LB.p.shots, r = shots[LB.i], many = shots.length > 1;
+  $("lbImg").src = IMG(r.img);
+  $("lbTitle").textContent = LB.p.name;
+  $("lbCount").textContent = many ? `${LB.i+1} из ${shots.length}` : "";
+  const s = $("lbAns");
+  if (LB.p.kind === "result") {
+    s.hidden = false;
+    s.textContent = r.ok ? `Ваш ответ: ${r.picked} · верно` : `Ваш ответ: ${r.picked} · неверно`;
+    s.className = r.ok ? "ok" : "bad";
+  } else s.hidden = true;
+  $("lbPrev").hidden = $("lbNext").hidden = !many;
+}
+function stepShot(d){ const n = LB.p.shots.length; LB.i = (LB.i + d + n) % n; showShot(); }
+function closePhotos(){ $("lightbox").hidden = true; }
+$("lbPrev").onclick = () => stepShot(-1);
+$("lbNext").onclick = () => stepShot(1);
+$("lbClose").onclick = closePhotos;
+$("lightbox").onclick = e => { if (e.target.id === "lightbox") closePhotos(); };
+document.addEventListener("keydown", e => {
+  if ($("lightbox").hidden) return;
+  if (e.key === "Escape") closePhotos();
+  if (e.key === "ArrowLeft" && LB.p.shots.length > 1) stepShot(-1);
+  if (e.key === "ArrowRight" && LB.p.shots.length > 1) stepShot(1);
+});
+
+function plural(n,a,b,c){const m=n%10,h=n%100;return m===1&&h!==11?a:m>=2&&m<=4&&(h<12||h>14)?b:c}
+
+function setFilter(f){
+  document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c.dataset.f === f));
+  document.querySelectorAll("#review li").forEach(li => li.hidden = f === "all" ? false : (f === "ok") !== (li.dataset.ok === "1"));
+}
+document.querySelectorAll(".chip").forEach(c => c.onclick = () => setFilter(c.dataset.f));
+
+/* ---------- Управление ---------- */
+const pick = name => document.querySelector(`input[name="${name}"]:checked`).value;
+$("startBtn").onclick = () => newGame(pick("mode"), pick("len"));
+$("againBtn").onclick = () => newGame(S.mode, S.len);
+$("menuBtn").onclick = () => show("screenStart");
+$("atlasBtn").onclick = () => { show("screenAtlas"); drawMap("all", {box:"atlasBox", list:"atlasPlaces", stats:"atlasStats", note:"atlasNote"}, allPlaces()); };
+$("atlasBack").onclick = () => show("screenStart");
+
+// Кнопка «Заново»: второе нажатие в течение 3 секунд возвращает на стартовый экран
+let restartTimer = 0;
+function resetRestartBtn(){ clearTimeout(restartTimer); const b = $("restartBtn"); b.classList.remove("confirm"); b.textContent = "↺ Заново"; }
+function goStart(){ resetRestartBtn(); cancelAnimationFrame(raf); show("screenStart"); }
+$("restartBtn").onclick = () => {
+  const b = $("restartBtn");
+  if (S && S.i === 0 && !S.cur.answered) return goStart();
+  if (!b.classList.contains("confirm")) {
+    b.classList.add("confirm"); b.textContent = "Нажми ещё раз";
+    restartTimer = setTimeout(resetRestartBtn, 3000);
+    return;
+  }
+  goStart();
+};
+
+document.addEventListener("keydown", e => {
+  if ($("screenGame").hidden || !S) return;
+  const k = "1234".indexOf(e.key);
+  if (k >= 0 && !S.cur.answered){ const b = $("ans"+k); if (b && !b.disabled) b.click(); }
+  else if (e.key === "Enter" && S.cur.answered && document.activeElement !== $("nextBtn")) $("nextBtn").click();
+});
+$("totalCount").textContent = QUESTIONS.length;
+$("allCount").textContent = QUESTIONS.length;
+</script>
+
+</body>
+</html>
